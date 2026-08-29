@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Change Request System</title>
+    <style>
+        body { font-family: sans-serif; padding: 15px; background: #fff; color: #333; }
+        table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 6px 10px; }
+        th { background: #eee; }
+        .box { border: 1px solid #aaa; padding: 10px; margin-bottom: 15px; }
+        .msg { background: #ffffcc; padding: 8px; margin-bottom: 15px; border: 1px solid #e6e600; }
+        form { margin: 5px 0; }
+    </style>
+</head>
+<body>
+
+    {% if message %}
+    <div class="msg"><b>ผลลัพธ์:</b> {{ message }}</div>
+    {% endif %}
+
+    <!--Members -->
+    <div class="box">
+        <h3>1. สมาชิก</h3>
+        <table>
+            <tr><th>ID</th><th>ชื่อ</th><th>บทบาทปัจจุบัน</th><th>สถานะ Active</th></tr>
+            {% for m in members %}
+            <tr><td>{{ m.id }}</td><td>{{ m.name }}</td><td>{{ m.role }}</td><td>{{ m.active|lower }}</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!--Requests list -->
+    <div class="box">
+        <h3>2. คำขอเปลี่ยนบทบาท</h3>
+        <table>
+            <tr><th>ID</th><th>ผู้เสนอ -> เป้าหมาย</th><th>บทบาทใหม่</th><th>สถานะ</th><th>ผลโหวต (Approve/Reject)</th></tr>
+            {% for r in requests %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td>{{ r.requester_id }} -> {{ r.target_id }}</td>
+                <td>{{ r.new_role }}</td>
+                <td><b>{{ r.status }}</b></td>
+                <td>{{ r.approve_count }} / {{ r.reject_count }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!-- form -->
+    <div class="box">
+        <h3>3. จัดการคำขอ</h3>
+        
+        <!-- requset -->
+        <form action="/create" method="post">
+            <b>สร้างคำขอ:</b> 
+            ผู้เสนอ <input type="text" name="requester_id" size="4" placeholder="M05" required>
+            เป้าหมาย <input type="text" name="target_id" size="4" placeholder="M01" required>
+            บทบาทใหม่ 
+            <select name="new_role">
+                <option value="PRODUCER">PRODUCER</option>
+                <option value="FINANCE">FINANCE</option>
+                <option value="EDITOR">EDITOR</option>
+                <option value="CREATOR">CREATOR</option>
+            </select>
+            <button type="submit">สร้าง</button>
+        </form>
+        <hr>
+
+        <!-- vote -->
+        <form action="/vote" method="post">
+            <b>ลงความเห็น:</b> 
+            รหัสคำขอ <input type="text" name="request_id" size="4" placeholder="C01" required>
+            ผู้โหวต <input type="text" name="voter_id" size="4" placeholder="M04" required>
+            ผล <select name="result">
+                <option value="APPROVE">อนุมัติ</option>
+                <option value="REJECT">ไม่อนุมัติ</option>
+            </select>
+            <button type="submit">ส่งผลโหวต</button>
+        </form>
+        <hr>
+
+        <!-- cancel -->
+        <form action="/cancel" method="post">
+            <b>ยกเลิกคำขอ:</b> 
+            รหัสคำขอ <input type="text" name="request_id" size="4" placeholder="C03" required>
+            ผู้เสนอ <input type="text" name="requester_id" size="4" placeholder="M03" required>
+            <button type="submit">ยกเลิก</button>
+        </form>
+    </div>
+
+</body>
+</html>
